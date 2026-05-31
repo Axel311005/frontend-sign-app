@@ -37,6 +37,7 @@ const team = [
   "Ashley Naomi Ramirez Mairena",
   "Roberto Alexander Tapia Perez",
   "Genesis Abigail Navarrete Gomez",
+  "Milena Urbina"
 ];
 
 const supportRoles = [
@@ -580,7 +581,7 @@ function App() {
               administracion.
             </p>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((member) => (
               <div
                 key={member}
