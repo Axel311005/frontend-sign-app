@@ -102,18 +102,6 @@ const objectives = [
   },
 ];
 
-const flowSteps = [
-  "Recepcion del paciente",
-  "Registro de datos",
-  "Verificacion de camara y software",
-  "Configuracion IA",
-  "Posicionamiento del paciente",
-  "Activacion del monitoreo",
-  "Captura de manos",
-  "Procesamiento biometrico",
-  "Almacenamiento y respaldo",
-];
-
 type Prediction = {
   label: string;
   score: number;
@@ -122,6 +110,32 @@ type Prediction = {
 };
 
 const PAIN_ALERT_LETTERS = new Set(["N", "S", "D"]);
+
+function formatCardNumber(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 16);
+  return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
+}
+
+function formatExpiry(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function formatCvv(value: string): string {
+  return value.replace(/\D/g, "").slice(0, 4);
+}
+
+function formatCardName(value: string): string {
+  return value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "").slice(0, 40);
+}
+
+function cardPreviewNumber(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "•••• •••• •••• ••••";
+  const padded = `${digits}${"•".repeat(16 - digits.length)}`.slice(0, 16);
+  return padded.match(/.{1,4}/g)?.join(" ") ?? "•••• •••• •••• ••••";
+}
 
 function App() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -132,6 +146,20 @@ function App() {
   const [mode, setMode] = useState<"letters" | "numbers">("letters");
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [cardName, setCardName] = useState("");
+
+  const openPaymentModal = () => setShowPaymentModal(true);
+  const closePaymentModal = () => {
+    setShowPaymentModal(false);
+    setCardNumber("");
+    setExpiry("");
+    setCvv("");
+    setCardName("");
+  };
 
   const apiBaseUrl =
     (import.meta.env.VITE_API_URL as string | undefined) ||
@@ -253,8 +281,8 @@ function App() {
         <div className="flex items-center gap-3">
           <img
             src={logoUam}
-            alt="Logo UAM"
-            className="h-11 w-11 rounded-2xl object-cover"
+            alt="Logo Señas y Sonrisas"
+            className="h-16 w-auto object-contain sm:h-[4.5rem]"
           />
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-teal-700">
@@ -303,8 +331,12 @@ function App() {
               <button className="rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-500">
                 Iniciar demostracion
               </button>
-              <button className="rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-teal-400">
-                Ver flujo clinico
+              <button
+                type="button"
+                onClick={openPaymentModal}
+                className="rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-teal-400"
+              >
+                Ver planes
               </button>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -648,7 +680,7 @@ function App() {
           </div>
         </section>
 
-        <section className="mt-20 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="mt-20">
           <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
               Objetivos
@@ -656,7 +688,7 @@ function App() {
             <h2 className="mt-4 text-2xl font-semibold text-slate-900">
               Ruta de impacto
             </h2>
-            <div className="mt-4 space-y-4 text-sm text-slate-600">
+            <div className="mt-4 grid gap-4 text-sm text-slate-600 md:grid-cols-3">
               {objectives.map((objective) => (
                 <div
                   key={objective.horizon}
@@ -670,30 +702,12 @@ function App() {
               ))}
             </div>
           </div>
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-              Proceso
-            </p>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-900">
-              Flujo clinico operativo
-            </h2>
-            <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-              {flowSteps.map((step, index) => (
-                <div
-                  key={step}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2"
-                >
-                  <span className="font-mono text-xs text-teal-700">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <p className="mt-1 text-slate-900">{step}</p>
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
 
-        <section className="mt-20 rounded-3xl border border-teal-200 bg-gradient-to-r from-teal-100 via-white to-amber-100 p-8">
+        <section
+          id="suscripcion"
+          className="mt-20 rounded-3xl border border-teal-200 bg-gradient-to-r from-teal-100 via-white to-amber-100 p-8"
+        >
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
@@ -708,16 +722,158 @@ function App() {
               </p>
             </div>
             <div className="flex gap-3">
-              <button className="rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white">
+              <button
+                type="button"
+                className="rounded-full border border-teal-300 px-6 py-3 text-sm font-semibold text-teal-700"
+              >
                 Agendar visita
               </button>
-              <button className="rounded-full border border-teal-300 px-6 py-3 text-sm font-semibold text-teal-700">
-                Descargar brochure
+              <button
+                type="button"
+                onClick={openPaymentModal}
+                className="rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-500"
+              >
+                Suscribirse con tarjeta
               </button>
             </div>
           </div>
         </section>
       </main>
+
+      {showPaymentModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+          onClick={closePaymentModal}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">
+                Pago con tarjeta
+              </h3>
+              <button
+                type="button"
+                onClick={closePaymentModal}
+                className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-teal-600 via-teal-700 to-teal-900 p-5 text-white shadow-md">
+              <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10" />
+              <div className="absolute -bottom-8 right-8 h-32 w-32 rounded-full bg-white/5" />
+              <p className="text-xs uppercase tracking-[0.25em] text-teal-100">
+                Señas y Sonrisas
+              </p>
+              <p className="mt-6 font-mono text-lg tracking-[0.15em]">
+                {cardPreviewNumber(cardNumber)}
+              </p>
+              <div className="mt-6 flex items-end justify-between text-sm">
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-teal-200">
+                    Titular
+                  </p>
+                  <p className="font-medium uppercase">
+                    {cardName.trim() || "NOMBRE APELLIDO"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-teal-200">
+                    Vence
+                  </p>
+                  <p className="font-medium">{expiry.trim() || "MM/AA"}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <label className="block">
+                <span className="text-xs font-medium text-slate-600">
+                  Numero de tarjeta
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="cc-number"
+                  placeholder="0000 0000 0000 0000"
+                  maxLength={19}
+                  value={cardNumber}
+                  onChange={(event) =>
+                    setCardNumber(formatCardNumber(event.target.value))
+                  }
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-xs font-medium text-slate-600">
+                    Vencimiento
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="cc-exp"
+                    placeholder="MM/AA"
+                    maxLength={5}
+                    value={expiry}
+                    onChange={(event) =>
+                      setExpiry(formatExpiry(event.target.value))
+                    }
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-slate-600">
+                    CVV
+                  </span>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    autoComplete="cc-csc"
+                    placeholder="000"
+                    maxLength={4}
+                    value={cvv}
+                    onChange={(event) =>
+                      setCvv(formatCvv(event.target.value))
+                    }
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <span className="text-xs font-medium text-slate-600">
+                  Nombre en la tarjeta
+                </span>
+                <input
+                  type="text"
+                  autoComplete="cc-name"
+                  placeholder="Como aparece en la tarjeta"
+                  maxLength={40}
+                  value={cardName}
+                  onChange={(event) =>
+                    setCardName(formatCardName(event.target.value))
+                  }
+                  className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm uppercase text-slate-700 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
+                />
+              </label>
+            </div>
+
+            <button
+              type="button"
+              className="mt-5 w-full rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-500"
+            >
+              Confirmar pago
+            </button>
+            <p className="mt-3 text-center text-xs text-slate-400">
+              Vista previa — pago no procesado
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
