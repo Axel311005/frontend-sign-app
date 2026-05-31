@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import logoUam from "./assets/logo.png";
+import { AnimatedCard } from "./components/AnimatedCard";
 
 const values = [
   {
@@ -345,9 +346,10 @@ function App() {
                 { label: "Modo actual", value: "Letras y numeros" },
                 { label: "Entorno objetivo", value: "Odontologia" },
                 { label: "Piloto", value: "UAM" },
-              ].map((item) => (
-                <div
+              ].map((item, index) => (
+                <AnimatedCard
                   key={item.label}
+                  delay={index * 90}
                   className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3"
                 >
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
@@ -356,12 +358,15 @@ function App() {
                   <p className="mt-2 text-base font-semibold text-slate-900">
                     {item.value}
                   </p>
-                </div>
+                </AnimatedCard>
               ))}
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white/80 p-6">
+          <AnimatedCard
+            delay={150}
+            className="rounded-[28px] border border-slate-200 bg-white/80 p-6"
+          >
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-900">
@@ -439,16 +444,17 @@ function App() {
                     label: "Latencia",
                     value: prediction ? `${prediction.latency_ms} ms` : "-",
                   },
-                ].map((item) => (
-                  <div
+                ].map((item, index) => (
+                  <AnimatedCard
                     key={item.label}
+                    delay={250 + index * 70}
                     className="rounded-xl border border-slate-200 bg-white/80 px-3 py-2"
                   >
                     <p className="text-slate-500">{item.label}</p>
                     <p className="mt-1 text-sm font-semibold text-slate-900">
                       {item.value}
                     </p>
-                  </div>
+                  </AnimatedCard>
                 ))}
               </div>
             </div>
@@ -486,55 +492,50 @@ function App() {
                 </div>
               )}
             </div>
-          </div>
+          </AnimatedCard>
         </section>
 
         <section id="solucion" className="mt-20 grid gap-6 lg:grid-cols-3">
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-              Justificacion
-            </p>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-900">
-              Reducir barreras de comunicacion en consulta.
-            </h2>
-            <p className="mt-4 text-sm text-slate-600">
-              La falta de comunicacion efectiva en tratamientos genera ansiedad
-              y riesgos clinicos. El sistema interpreta senas en tiempo real y
-              alerta al odontologo.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-              Giro
-            </p>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-900">
-              Tecnologia + salud
-            </h2>
-            <p className="mt-4 text-sm text-slate-600">
-              Emprendimiento inclusivo que conecta profesionales y pacientes con
-              IA y vision artificial. Comienza en UAM y se proyecta a clinicas
-              privadas.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-              Propuesta
-            </p>
-            <h2 className="mt-4 text-2xl font-semibold text-slate-900">
-              Inclusion, seguridad y humanidad.
-            </h2>
-            <p className="mt-4 text-sm text-slate-600">
-              Comunicacion en tiempo real, capacitacion clinica y soporte
-              continuo con actualizaciones premium.
-            </p>
-          </div>
+          {[
+            {
+              tag: "Justificacion",
+              title: "Reducir barreras de comunicacion en consulta.",
+              body: "La falta de comunicacion efectiva en tratamientos genera ansiedad y riesgos clinicos. El sistema interpreta senas en tiempo real y alerta al odontologo.",
+            },
+            {
+              tag: "Giro",
+              title: "Tecnologia + salud",
+              body: "Emprendimiento inclusivo que conecta profesionales y pacientes con IA y vision artificial. Comienza en UAM y se proyecta a clinicas privadas.",
+            },
+            {
+              tag: "Propuesta",
+              title: "Inclusion, seguridad y humanidad.",
+              body: "Comunicacion en tiempo real, capacitacion clinica y soporte continuo con actualizaciones premium.",
+            },
+          ].map((card, index) => (
+            <AnimatedCard
+              key={card.tag}
+              delay={index * 100}
+              className="rounded-3xl border border-slate-200 bg-white/80 p-6"
+            >
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                {card.tag}
+              </p>
+              <h2 className="mt-4 text-2xl font-semibold text-slate-900">
+                {card.title}
+              </h2>
+              <p className="mt-4 text-sm text-slate-600">{card.body}</p>
+            </AnimatedCard>
+          ))}
         </section>
 
         <section
           id="impacto"
           className="mt-20 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]"
         >
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
+          <AnimatedCard
+            className="rounded-3xl border border-slate-200 bg-white/80 p-6"
+          >
             <h2 className="text-2xl font-semibold text-slate-900">Mision</h2>
             <p className="mt-4 text-sm text-slate-600">
               Mejorar la comunicacion entre personas con discapacidad auditiva y
@@ -549,18 +550,20 @@ function App() {
               nacional e internacional, transformando la comunicacion en
               distintos sectores.
             </p>
-          </div>
+          </AnimatedCard>
           <div className="grid gap-4 sm:grid-cols-2">
-            {values.map((value) => (
-              <div
+            {values.map((value, index) => (
+              <AnimatedCard
                 key={value.title}
+                delay={index * 80}
+                shine
                 className="rounded-3xl border border-slate-200 bg-gradient-to-br from-teal-50 to-white p-5"
               >
                 <p className="text-sm font-semibold text-slate-900">
                   {value.title}
                 </p>
                 <p className="mt-2 text-xs text-slate-600">{value.detail}</p>
-              </div>
+              </AnimatedCard>
             ))}
           </div>
         </section>
@@ -582,16 +585,20 @@ function App() {
             </p>
           </div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {team.map((member) => (
-              <div
+            {team.map((member, index) => (
+              <AnimatedCard
                 key={member}
+                delay={index * 60}
                 className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-900"
               >
                 {member}
-              </div>
+              </AnimatedCard>
             ))}
           </div>
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-6">
+          <AnimatedCard
+            delay={120}
+            className="mt-6 rounded-3xl border border-slate-200 bg-white/80 p-6"
+          >
             <p className="text-sm font-semibold text-slate-900">
               Apoyo de otras carreras
             </p>
@@ -599,19 +606,20 @@ function App() {
               {supportRoles.map((role) => (
                 <div
                   key={role}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2"
+                  className="card-inner-hover rounded-xl border border-slate-200 bg-white px-3 py-2"
                 >
                   {role}
                 </div>
               ))}
             </div>
-          </div>
+          </AnimatedCard>
         </section>
 
         <section className="mt-20 grid gap-6 lg:grid-cols-2">
-          {Object.entries(swot).map(([title, items]) => (
-            <div
+          {Object.entries(swot).map(([title, items], index) => (
+            <AnimatedCard
               key={title}
+              delay={index * 100}
               className="rounded-3xl border border-slate-200 bg-white/80 p-6"
             >
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
@@ -621,13 +629,13 @@ function App() {
                 {items.map((item) => (
                   <li
                     key={item}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2"
+                    className="card-inner-hover rounded-xl border border-slate-200 bg-white px-3 py-2"
                   >
                     {item}
                   </li>
                 ))}
               </ul>
-            </div>
+            </AnimatedCard>
           ))}
         </section>
 
@@ -635,7 +643,7 @@ function App() {
           id="mercado"
           className="mt-20 grid gap-8 lg:grid-cols-[1fr_0.8fr]"
         >
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
+          <AnimatedCard className="rounded-3xl border border-slate-200 bg-white/80 p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
               Estudio
             </p>
@@ -648,20 +656,24 @@ function App() {
               en salud.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {marketStats.map((stat) => (
-                <div
+              {marketStats.map((stat, index) => (
+                <AnimatedCard
                   key={stat.label}
+                  delay={index * 80}
                   className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3"
                 >
                   <p className="text-xs text-slate-500">{stat.label}</p>
                   <p className="mt-2 text-2xl font-semibold text-teal-700">
                     {stat.value}
                   </p>
-                </div>
+                </AnimatedCard>
               ))}
             </div>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
+          </AnimatedCard>
+          <AnimatedCard
+            delay={120}
+            className="rounded-3xl border border-slate-200 bg-white/80 p-6"
+          >
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
               Modelo
             </p>
@@ -672,17 +684,17 @@ function App() {
               {businessModel.map((item) => (
                 <li
                   key={item}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2"
+                  className="card-inner-hover rounded-xl border border-slate-200 bg-white px-3 py-2"
                 >
                   {item}
                 </li>
               ))}
             </ul>
-          </div>
+          </AnimatedCard>
         </section>
 
         <section className="mt-20">
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-6">
+          <AnimatedCard className="rounded-3xl border border-slate-200 bg-white/80 p-6">
             <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
               Objetivos
             </p>
@@ -690,26 +702,28 @@ function App() {
               Ruta de impacto
             </h2>
             <div className="mt-4 grid gap-4 text-sm text-slate-600 md:grid-cols-3">
-              {objectives.map((objective) => (
-                <div
+              {objectives.map((objective, index) => (
+                <AnimatedCard
                   key={objective.horizon}
+                  delay={index * 90}
                   className="rounded-2xl border border-slate-200 bg-white px-4 py-3"
                 >
                   <p className="text-xs uppercase tracking-[0.2em] text-teal-700">
                     {objective.horizon}
                   </p>
                   <p className="mt-2 text-slate-900">{objective.detail}</p>
-                </div>
+                </AnimatedCard>
               ))}
             </div>
-          </div>
+          </AnimatedCard>
         </section>
 
-        <section
-          id="suscripcion"
+        <AnimatedCard
+          shine
           className="mt-20 rounded-3xl border border-teal-200 bg-gradient-to-r from-teal-100 via-white to-amber-100 p-8"
         >
-          <div className="flex flex-wrap items-center justify-between gap-6">
+          <section id="suscripcion">
+            <div className="flex flex-wrap items-center justify-between gap-6">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
                 Crecimiento
@@ -737,17 +751,18 @@ function App() {
                 Suscribirse con tarjeta
               </button>
             </div>
-          </div>
-        </section>
+            </div>
+          </section>
+        </AnimatedCard>
       </main>
 
       {showPaymentModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+          className="fixed inset-0 z-50 flex animate-overlay-in items-center justify-center bg-slate-900/50 p-4"
           onClick={closePaymentModal}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+            className="w-full max-w-md animate-modal-in rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
