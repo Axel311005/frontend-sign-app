@@ -120,6 +120,8 @@ type Prediction = {
   latency_ms: number;
 };
 
+const PAIN_ALERT_LETTERS = new Set(["N", "S", "D"]);
+
 function App() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -133,6 +135,10 @@ function App() {
   const apiBaseUrl =
     (import.meta.env.VITE_API_URL as string | undefined) ||
     "http://localhost:5000";
+
+  const detectedLabel = prediction?.label?.toUpperCase() ?? "";
+  const showPainAlert =
+    mode === "letters" && PAIN_ALERT_LETTERS.has(detectedLabel);
 
   const startCamera = async () => {
     setError(null);
@@ -414,19 +420,35 @@ function App() {
               <p className="text-sm font-semibold text-slate-900">
                 Alertas clinicas
               </p>
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-rose-100 px-3 py-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-rose-700">
-                    Dolor
-                  </p>
-                  <p className="text-sm text-slate-900">
-                    Pausa inmediata sugerida
-                  </p>
+              {showPainAlert ? (
+                <div className="mt-3 flex items-center justify-between rounded-xl bg-rose-100 px-3 py-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-rose-700">
+                      Dolor
+                    </p>
+                    <p className="text-sm text-slate-900">
+                      Pausa inmediata sugerida
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-rose-200 px-3 py-1 text-xs text-rose-800">
+                    Critico
+                  </span>
                 </div>
-                <span className="rounded-full bg-rose-200 px-3 py-1 text-xs text-rose-800">
-                  Critico
-                </span>
-              </div>
+              ) : (
+                <div className="mt-3 flex items-center justify-between rounded-xl bg-teal-50 px-3 py-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-teal-700">
+                      Todo bien
+                    </p>
+                    <p className="text-sm text-slate-900">
+                      Sin alertas activas en este momento
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-teal-100 px-3 py-1 text-xs text-teal-800">
+                    Normal
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </section>
