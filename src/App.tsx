@@ -393,7 +393,7 @@ function App() {
               <div className="mt-4 grid grid-cols-3 gap-3 text-xs">
                 {[
                   {
-                    label: "Sena detectada",
+                    label: "Seña detectada",
                     value: prediction?.label || "-",
                   },
                   {
