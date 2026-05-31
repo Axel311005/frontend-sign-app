@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import logoUam from "./assets/logo.png";
 
 const values = [
   {
@@ -250,9 +251,11 @@ function App() {
     <div className="text-slate-900">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-8">
         <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-teal-500 to-amber-400 text-white">
-            <span className="text-lg font-semibold">S&S</span>
-          </div>
+          <img
+            src={logoUam}
+            alt="Logo UAM"
+            className="h-11 w-11 rounded-2xl object-cover"
+          />
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-teal-700">
               Señas y Sonrisas
