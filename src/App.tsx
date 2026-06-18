@@ -139,11 +139,46 @@ function cardPreviewNumber(value: string): string {
   return padded.match(/.{1,4}/g)?.join(" ") ?? "•••• •••• •••• ••••";
 }
 
+function playAlertSound() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const audioCtx = new AudioContextClass();
+
+    const playNote = (freq: number, startTime: number, duration: number) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.0, startTime);
+      gain.gain.linearRampToValueAtTime(0.12, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    };
+
+    const now = audioCtx.currentTime;
+    playNote(880, now, 0.25);
+    playNote(1109.73, now + 0.1, 0.35);
+  } catch (err) {
+    console.error("No se pudo reproducir el sonido de alerta:", err);
+  }
+}
+
 function App() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sendLock = useRef(false);
   const loopRef = useRef<number | null>(null);
+  const prevLabelRef = useRef<string>("");
+  const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [mode, setMode] = useState<"letters" | "numbers">("letters");
   const [prediction, setPrediction] = useState<Prediction | null>(null);
@@ -258,6 +293,15 @@ function App() {
         if (!response.ok) {
           throw new Error(payload?.error || "Error en el backend");
         }
+
+        const newLabel = payload?.label?.toUpperCase() ?? "";
+        if (mode === "letters" && PAIN_ALERT_LETTERS.has(newLabel)) {
+          if (newLabel !== prevLabelRef.current && !isMutedRef.current) {
+            playAlertSound();
+          }
+        }
+        prevLabelRef.current = newLabel;
+
         setPrediction(payload as Prediction);
         setError(null);
       } catch (err) {
@@ -459,9 +503,54 @@ function App() {
               </div>
             </div>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-white/80 p-4">
-              <p className="text-sm font-semibold text-slate-900">
-                Alertas clinicas
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-slate-900">
+                  Alertas clinicas
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMuted((prev) => {
+                      const next = !prev;
+                      isMutedRef.current = next;
+                      return next;
+                    });
+                  }}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+                    isMuted
+                      ? "bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100"
+                      : "bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100"
+                  }`}
+                  aria-label={isMuted ? "Activar sonido" : "Silenciar sonido"}
+                >
+                  {isMuted ? (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="h-3.5 w-3.5"
+                      >
+                        <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.063.922-2.063 2.063v4.875c0 1.141.922 2.062 2.063 2.062h1.932l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06zM17.78 9.22a.75.75 0 10-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 001.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 101.06-1.06L20.56 12l1.72-1.72a.75.75 0 00-1.06-1.06l-1.72 1.72-1.72-1.72z" />
+                      </svg>
+                      Silenciado
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="h-3.5 w-3.5 animate-pulse"
+                      >
+                        <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.063.922-2.063 2.063v4.875c0 1.141.922 2.062 2.063 2.062h1.932l4.5 4.5c.944.945 2.56.276 2.56-1.06V4.06zM18.57 17.47a.75.75 0 11-1.06-1.06 5.222 5.222 0 000-7.38.75.75 0 011.06-1.06 6.722 6.722 0 010 9.5z" />
+                        <path d="M21.35 20.25a.75.75 0 01-1.06 0 9.215 9.215 0 000-13.03.75.75 0 111.06-1.06 10.715 10.715 0 010 15.15.75.75 0 010 1.06z" />
+                      </svg>
+                      Sonido Activo
+                    </>
+                  )}
+                </button>
+              </div>
               {showPainAlert ? (
                 <div className="mt-3 flex items-center justify-between rounded-xl bg-rose-100 px-3 py-3">
                   <div>
