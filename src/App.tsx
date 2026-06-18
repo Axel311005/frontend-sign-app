@@ -180,6 +180,7 @@ function App() {
   const sendLock = useRef(false);
   const loopRef = useRef<number | null>(null);
   const prevLabelRef = useRef<string>("");
+  const lastSoundPlayedRef = useRef<number>(0);
   const [isMuted, setIsMuted] = useState(false);
   const isMutedRef = useRef(false);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -299,8 +300,11 @@ function App() {
 
         const newLabel = payload?.label?.toUpperCase() ?? "";
         if (mode === "letters" && PAIN_ALERT_LETTERS.has(newLabel)) {
-          if (newLabel !== prevLabelRef.current && !isMutedRef.current) {
+          const now = Date.now();
+          const isDifferentLetter = newLabel !== prevLabelRef.current;
+          if (!isMutedRef.current && (isDifferentLetter || now - lastSoundPlayedRef.current >= 2000)) {
             playAlertSound();
+            lastSoundPlayedRef.current = now;
           }
         }
         prevLabelRef.current = newLabel;
