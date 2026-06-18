@@ -145,15 +145,15 @@ function playAlertSound() {
     if (!AudioContextClass) return;
     const audioCtx = new AudioContextClass();
 
-    const playNote = (freq: number, startTime: number, duration: number) => {
+    const playBeep = (freq: number, startTime: number, duration: number) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
-      osc.type = "sine";
+      osc.type = "triangle";
       osc.frequency.setValueAtTime(freq, startTime);
 
       gain.gain.setValueAtTime(0.0, startTime);
-      gain.gain.linearRampToValueAtTime(0.12, startTime + 0.02);
+      gain.gain.linearRampToValueAtTime(0.25, startTime + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
 
       osc.connect(gain);
@@ -164,8 +164,11 @@ function playAlertSound() {
     };
 
     const now = audioCtx.currentTime;
-    playNote(880, now, 0.25);
-    playNote(1109.73, now + 0.1, 0.35);
+    // 3 pitidos rápidos de alerta tipo monitor clínico (B5, 987.77 Hz)
+    const alertFreq = 987.77;
+    playBeep(alertFreq, now, 0.12);
+    playBeep(alertFreq, now + 0.18, 0.12);
+    playBeep(alertFreq, now + 0.36, 0.18);
   } catch (err) {
     console.error("No se pudo reproducir el sonido de alerta:", err);
   }
